@@ -18,9 +18,10 @@ import os
 
 from dotenv import load_dotenv
 
-from ragkit.core.interfaces import BaseLLM
 from ragkit.core.config import LLMConfig
+from ragkit.core.interfaces import BaseLLM
 from ragkit.core.registry import LLM_REGISTRY
+from ragkit.exceptions import MissingAPIKeyError, MissingDependencyError
 
 load_dotenv()
 
@@ -38,7 +39,7 @@ class _ProviderLLM(BaseLLM):
         self.model = self.config.model or self.default_model
         self.api_key = self._resolve_key(self.config.api_key)
         if not self.api_key:
-            raise ValueError(
+            raise MissingAPIKeyError(
                 f"No API key for '{self.config.backend}'. Pass api_key=... to "
                 f"RagKit(...) or set {self.env_var} in your environment / .env file."
             )
@@ -68,6 +69,7 @@ class GroqLLM(_ProviderLLM):
 
     def generate(self, prompt: str, temperature: float | None = None) -> str:
         from groq import Groq
+
         client = Groq(api_key=self.api_key)
         resp = client.chat.completions.create(
             model=self.model,
@@ -84,6 +86,7 @@ class OpenAILLM(_ProviderLLM):
 
     def generate(self, prompt: str, temperature: float | None = None) -> str:
         from openai import OpenAI
+
         client = OpenAI(api_key=self.api_key)
         resp = client.chat.completions.create(
             model=self.model,
@@ -102,7 +105,7 @@ class AnthropicLLM(_ProviderLLM):
         try:
             import anthropic
         except ImportError as e:  # pragma: no cover
-            raise ImportError("Install the Anthropic SDK: pip install anthropic") from e
+            raise MissingDependencyError("anthropic", extra="anthropic") from e
         client = anthropic.Anthropic(api_key=self.api_key)
         resp = client.messages.create(
             model=self.model,
@@ -123,9 +126,7 @@ class GoogleLLM(_ProviderLLM):
         try:
             import google.generativeai as genai
         except ImportError as e:  # pragma: no cover
-            raise ImportError(
-                "Install the Google GenAI SDK: pip install google-generativeai"
-            ) from e
+            raise MissingDependencyError("google-generativeai", extra="google") from e
         genai.configure(api_key=self.api_key)
         model = genai.GenerativeModel(self.model)
         resp = model.generate_content(

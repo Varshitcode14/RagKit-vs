@@ -6,7 +6,7 @@ pipelines stay focused on control flow, and templates can be overridden.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from ragkit.prompts import templates
 
@@ -55,11 +55,7 @@ class PromptBuilder:
     def build_history(history: Sequence[dict]) -> str:
         out = ""
         for item in history:
-            out += (
-                f"Step {item['step']}\n"
-                f"Goal: {item['goal']}\n"
-                f"Answer: {item['answer']}\n\n"
-            )
+            out += f"Step {item['step']}\nGoal: {item['goal']}\nAnswer: {item['answer']}\n\n"
         return out
 
     # -- convenience formatters -------------------------------------------
@@ -70,17 +66,13 @@ class PromptBuilder:
         return self._t["planner"].format(question=question)
 
     def step_definer(self, question: str, step: str, history: str) -> str:
-        return self._t["step_definer"].format(
-            question=question, step=step, history=history
-        )
+        return self._t["step_definer"].format(question=question, step=step, history=history)
 
     def extractor(self, goal: str, documents: str) -> str:
         return self._t["extractor"].format(goal=goal, documents=documents)
 
     def qa(self, goal: str, history: str, evidence: str) -> str:
-        return self._t["qa"].format(
-            goal=goal, history=history or "None", evidence=evidence
-        )
+        return self._t["qa"].format(goal=goal, history=history or "None", evidence=evidence)
 
     def final(self, question: str, history: str) -> str:
         return self._t["final"].format(question=question, history=history)

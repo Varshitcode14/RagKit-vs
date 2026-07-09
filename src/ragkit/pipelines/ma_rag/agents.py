@@ -15,8 +15,13 @@ from ragkit.core.interfaces import BaseLLM
 from ragkit.prompts.builder import PromptBuilder
 
 _FINAL_PREFIXES = [
-    "Final Answer:", "final answer:", "Answer:", "answer:",
-    "The answer is", "Based on", "According to",
+    "Final Answer:",
+    "final answer:",
+    "Answer:",
+    "answer:",
+    "The answer is",
+    "Based on",
+    "According to",
 ]
 
 
@@ -84,7 +89,7 @@ def final_answer_agent(state: dict, llm: BaseLLM, pb: PromptBuilder) -> dict:
     stripped = answer.strip()
     for prefix in _FINAL_PREFIXES:
         if stripped.startswith(prefix):
-            stripped = stripped[len(prefix):].strip()
+            stripped = stripped[len(prefix) :].strip()
             break
     state["final_answer"] = stripped
     return state

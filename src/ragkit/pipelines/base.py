@@ -11,16 +11,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from ragkit.core.interfaces import (
-    BasePipeline,
-    BaseLLM,
-    BaseEmbedder,
-    BaseChunker,
-    BaseVectorStore,
-    BaseRetriever,
-)
 from ragkit.core.config import RagKitConfig
+from ragkit.core.interfaces import (
+    BaseChunker,
+    BaseEmbedder,
+    BaseLLM,
+    BasePipeline,
+    BaseRetriever,
+    BaseVectorStore,
+)
 from ragkit.corpus.loaders import load_corpus
+from ragkit.exceptions import NotIndexedError
 from ragkit.prompts.builder import PromptBuilder
 from ragkit.utils.logger import get_logger
 
@@ -54,6 +55,7 @@ class IndexedPipeline(BasePipeline):
     def llm(self) -> BaseLLM:
         if self._llm is None:
             from ragkit.llms import create_llm
+
             self._llm = create_llm(self.config.llm)
         return self._llm
 
@@ -61,6 +63,7 @@ class IndexedPipeline(BasePipeline):
     def embedder(self) -> BaseEmbedder:
         if self._embedder is None:
             from ragkit.embedders import create_embedder
+
             self._embedder = create_embedder(self.config.embedding)
         return self._embedder
 
@@ -68,6 +71,7 @@ class IndexedPipeline(BasePipeline):
     def chunker(self) -> BaseChunker:
         if self._chunker is None:
             from ragkit.chunkers import create_chunker
+
             self._chunker = create_chunker(self.config.chunking)
         return self._chunker
 
@@ -75,6 +79,7 @@ class IndexedPipeline(BasePipeline):
     def store(self) -> BaseVectorStore:
         if self._store is None:
             from ragkit.stores import create_store
+
             self._store = create_store(self.config.store, dim=self.embedder.dimension)
         return self._store
 
@@ -82,6 +87,7 @@ class IndexedPipeline(BasePipeline):
     def retriever(self) -> BaseRetriever:
         if self._retriever is None:
             from ragkit.retrievers.dense import DenseRetriever
+
             self._retriever = DenseRetriever(
                 embedder=self.embedder,
                 store=self.store,
@@ -90,7 +96,7 @@ class IndexedPipeline(BasePipeline):
         return self._retriever
 
     # ── indexing ──────────────────────────────────────────────────────
-    def ingest(self, corpus: Any) -> "IndexedPipeline":
+    def ingest(self, corpus: Any) -> IndexedPipeline:
         documents = load_corpus(corpus)
         chunks = self.chunker.split_many(documents)
 
@@ -110,19 +116,19 @@ class IndexedPipeline(BasePipeline):
         _ = self.retriever
         return self
 
-    def build(self, corpus: Any | None = None) -> "IndexedPipeline":
+    def build(self, corpus: Any | None = None) -> IndexedPipeline:
         """Alias for ingest; usable when corpus was provided at construction."""
         if corpus is not None:
             return self.ingest(corpus)
         return self
 
-    def load_index(self, path: str) -> "IndexedPipeline":
+    def load_index(self, path: str) -> IndexedPipeline:
         self.store.load(path)
         self._retriever = None
         _ = self.retriever
         return self
 
-    def save_index(self, path: str) -> "IndexedPipeline":
+    def save_index(self, path: str) -> IndexedPipeline:
         self.store.save(path)
         return self
 
@@ -132,7 +138,6 @@ class IndexedPipeline(BasePipeline):
 
     def _ensure_indexed(self) -> None:
         if not self.is_indexed:
-            raise RuntimeError(
-                "Pipeline has no index. Call ingest(corpus) or load_index(path) "
-                "before querying."
+            raise NotIndexedError(
+                "Pipeline has no index. Call ingest(corpus) or load_index(path) before querying."
             )

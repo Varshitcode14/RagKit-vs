@@ -1,7 +1,7 @@
 """Embedder backends."""
 
-from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.config import EmbeddingConfig
+from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.registry import EMBEDDER_REGISTRY
 from ragkit.embedders.hashing import HashingEmbedder
 

@@ -14,8 +14,8 @@ os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
 
 import numpy as np
 
-from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.config import EmbeddingConfig
+from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.registry import EMBEDDER_REGISTRY
 from ragkit.utils.logger import get_logger
 
@@ -38,9 +38,19 @@ class SentenceTransformerEmbedder(BaseEmbedder):
     @classmethod
     def _load_model(cls, name: str):
         if name not in cls._models:
-            from sentence_transformers import SentenceTransformer
-            _log.info("Loading embedding model: %s", name)
-            cls._models[name] = SentenceTransformer(name)
+            try:
+                from sentence_transformers import SentenceTransformer
+            except ImportError as e:
+                from ragkit.exceptions import MissingDependencyError
+
+                raise MissingDependencyError("sentence-transformers", extra="embeddings") from e
+            try:
+                _log.info("Loading embedding model: %s", name)
+                cls._models[name] = SentenceTransformer(name)
+            except Exception as e:  # noqa: BLE001
+                from ragkit.exceptions import EmbeddingError
+
+                raise EmbeddingError(f"Failed to load embedding model '{name}': {e}") from e
         return cls._models[name]
 
     def encode(self, text: str) -> np.ndarray:

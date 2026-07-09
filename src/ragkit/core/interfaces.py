@@ -8,7 +8,8 @@ live in their own subpackages and are swapped via configuration/registry.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
@@ -98,7 +99,7 @@ class BasePipeline(ABC):
     name: str = "base"
 
     @abstractmethod
-    def ingest(self, corpus: Any) -> "BasePipeline":
+    def ingest(self, corpus: Any) -> BasePipeline:
         """Load + index a corpus so the pipeline can answer questions."""
 
     @abstractmethod

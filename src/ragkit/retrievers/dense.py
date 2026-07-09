@@ -18,8 +18,8 @@ from __future__ import annotations
 
 import re
 
-from ragkit.core.interfaces import BaseRetriever, BaseEmbedder, BaseVectorStore
 from ragkit.core.config import RetrievalConfig
+from ragkit.core.interfaces import BaseEmbedder, BaseRetriever, BaseVectorStore
 from ragkit.core.registry import RETRIEVER_REGISTRY
 
 _TOKEN = re.compile(r"[a-z0-9]+")
@@ -66,10 +66,7 @@ class DenseRetriever(BaseRetriever):
     def _postprocess(self, results: list[dict]) -> list[dict]:
         # 1) drop weak retrievals
         if self.config.min_score is not None:
-            results = [
-                r for r in results
-                if float(r.get("score", 0.0)) >= self.config.min_score
-            ]
+            results = [r for r in results if float(r.get("score", 0.0)) >= self.config.min_score]
 
         # 2) remove near-identical chunks (keep the highest-scoring one,
         #    which comes first because results are similarity-ordered)
@@ -83,10 +80,7 @@ class DenseRetriever(BaseRetriever):
         kept_tokens: list[set[str]] = []
         for r in results:
             toks = _tokens(r.get("text", ""))
-            if any(
-                _jaccard(toks, prev) >= self.config.dedupe_threshold
-                for prev in kept_tokens
-            ):
+            if any(_jaccard(toks, prev) >= self.config.dedupe_threshold for prev in kept_tokens):
                 continue
             kept.append(r)
             kept_tokens.append(toks)

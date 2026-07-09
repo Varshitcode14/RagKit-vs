@@ -4,16 +4,15 @@ Uses the HashingEmbedder so no model download is needed. Skipped if faiss
 is not installed.
 """
 
-import numpy as np
 import pytest
 
+from ragkit.core.config import EmbeddingConfig, RetrievalConfig, StoreConfig
 from ragkit.embedders import create_embedder
-from ragkit.core.config import EmbeddingConfig, StoreConfig, RetrievalConfig
 
 faiss = pytest.importorskip("faiss")
 
-from ragkit.stores.faiss_store import FAISSVectorStore  # noqa: E402
 from ragkit.retrievers.dense import DenseRetriever  # noqa: E402
+from ragkit.stores.faiss_store import FAISSVectorStore  # noqa: E402
 
 
 def _embedder():

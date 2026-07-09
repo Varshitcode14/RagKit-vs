@@ -61,9 +61,7 @@ def judge_correctness(llm: BaseLLM, question: str, gold: str, prediction: str) -
 
 
 def judge_faithfulness(llm: BaseLLM, context: str, prediction: str) -> float | None:
-    out = llm.generate(
-        _FAITHFULNESS_PROMPT.format(context=context, prediction=prediction)
-    )
+    out = llm.generate(_FAITHFULNESS_PROMPT.format(context=context, prediction=prediction))
     return _rating_to_score(out)
 
 

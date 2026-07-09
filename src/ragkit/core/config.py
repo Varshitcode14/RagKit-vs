@@ -7,7 +7,7 @@ import-time ``os.getenv`` calls in the original project.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -55,8 +55,8 @@ class LLMConfig:
     # backend / provider name:
     #   groq | openai | google | anthropic | provider_manager | mock | <custom>
     backend: str = "provider_manager"
-    model: str | None = None            # provider default used when None
-    api_key: str | None = None          # falls back to the provider's env var
+    model: str | None = None  # provider default used when None
+    api_key: str | None = None  # falls back to the provider's env var
     temperature: float = 0.0
     # provider_manager (multi-provider fallback) knobs
     groq_model: str = "llama-3.3-70b-versatile"
@@ -66,6 +66,7 @@ class LLMConfig:
 @dataclass
 class PathsConfig:
     """Where RAGKit reads/writes artifacts. Defaults to a workspace cache."""
+
     work_dir: Path = field(default_factory=lambda: Path(".ragkit"))
 
     @property
@@ -80,6 +81,7 @@ class PathsConfig:
 @dataclass
 class MARagConfig:
     """Multi-agent RAG specific settings."""
+
     max_steps: int = 3
     verbose: bool = False
 
@@ -87,6 +89,7 @@ class MARagConfig:
 @dataclass
 class RagKitConfig:
     """Top-level configuration aggregating every component's settings."""
+
     embedding: EmbeddingConfig = field(default_factory=EmbeddingConfig)
     store: StoreConfig = field(default_factory=StoreConfig)
     retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
@@ -101,7 +104,7 @@ class RagKitConfig:
         return d
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "RagKitConfig":
+    def from_dict(cls, data: dict[str, Any] | None) -> RagKitConfig:
         data = dict(data or {})
         cfg = cls()
         if "embedding" in data:

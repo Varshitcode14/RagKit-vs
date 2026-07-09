@@ -1,8 +1,8 @@
 """Tests for core types, config, and registries."""
 
-from ragkit.core.types import Document, RagResponse, as_doc_dicts
 from ragkit.core.config import RagKitConfig
 from ragkit.core.registry import Registry
+from ragkit.core.types import Document, RagResponse, as_doc_dicts
 
 
 def test_document_mapping_access():

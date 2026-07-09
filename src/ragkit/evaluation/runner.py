@@ -16,17 +16,17 @@ import time
 from pathlib import Path
 from typing import Any
 
-from ragkit.core.interfaces import BasePipeline, BaseEmbedder, BaseLLM
+from ragkit.core.interfaces import BaseEmbedder, BaseLLM, BasePipeline
+from ragkit.evaluation.judge import batch_judge
 from ragkit.evaluation.metrics.generation import compute_generation_metrics
 from ragkit.evaluation.metrics.retrieval import compute_retrieval_metrics
-from ragkit.evaluation.judge import batch_judge
 
 DEFAULT_RESULTS_DIR = Path("results")
 
 
 # ── dataset loading ───────────────────────────────────────────────────
 def load_dataset(dataset_path: str | Path, num_samples: int | None = None) -> list[dict]:
-    with open(dataset_path, "r", encoding="utf-8") as f:
+    with open(dataset_path, encoding="utf-8") as f:
         data = json.load(f)
     if num_samples:
         data = data[:num_samples]
@@ -37,12 +37,14 @@ def load_dataset(dataset_path: str | Path, num_samples: int | None = None) -> li
             sup = s["supporting_facts"].get("title", [])
         else:
             sup = s.get("supporting_titles", [])
-        out.append({
-            "id": s.get("id", ""),
-            "question": s["question"],
-            "answer": s["answer"],
-            "supporting_titles": sup,
-        })
+        out.append(
+            {
+                "id": s.get("id", ""),
+                "question": s["question"],
+                "answer": s["answer"],
+                "supporting_titles": sup,
+            }
+        )
     return out
 
 
@@ -66,20 +68,22 @@ def run_inference(
     for idx, sample in enumerate(samples, start=1):
         try:
             result = pipeline.run(sample["question"])
-            predictions.append({
-                "id": sample.get("id", ""),
-                "question": sample["question"],
-                "gold": sample["answer"],
-                "prediction": result.answer,
-                "retrieved_titles": result.retrieved_titles,
-                "supporting_titles": sample.get("supporting_titles", []),
-                "context": result.context,
-                "total_time": result.total_time,
-                "retrieval_time": result.retrieval_time,
-                "generation_time": result.generation_time,
-                "reasoning_steps": result.reasoning_steps,
-                "pipeline": result.pipeline,
-            })
+            predictions.append(
+                {
+                    "id": sample.get("id", ""),
+                    "question": sample["question"],
+                    "gold": sample["answer"],
+                    "prediction": result.answer,
+                    "retrieved_titles": result.retrieved_titles,
+                    "supporting_titles": sample.get("supporting_titles", []),
+                    "context": result.context,
+                    "total_time": result.total_time,
+                    "retrieval_time": result.retrieval_time,
+                    "generation_time": result.generation_time,
+                    "reasoning_steps": result.reasoning_steps,
+                    "pipeline": result.pipeline,
+                }
+            )
             _save_json(predictions, output_path)
         except Exception as exc:  # noqa: BLE001
             print(f"[{idx}] ERROR: {exc}")
@@ -94,7 +98,7 @@ def evaluate_predictions(
     embedder: BaseEmbedder | None = None,
     judge_llm: BaseLLM | None = None,
 ) -> dict:
-    with open(predictions_path, "r", encoding="utf-8") as f:
+    with open(predictions_path, encoding="utf-8") as f:
         predictions: list[dict] = json.load(f)
     if not predictions:
         return {}

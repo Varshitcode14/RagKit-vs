@@ -1,16 +1,16 @@
 """Tests for evaluation metrics (pure functions)."""
 
-from ragkit.evaluation.metrics.retrieval import (
-    precision_at_k,
-    recall_at_k,
-    reciprocal_rank,
-    compute_retrieval_metrics,
-)
 from ragkit.evaluation.metrics.generation import (
+    compute_generation_metrics,
     exact_match,
     token_f1,
     token_recall,
-    compute_generation_metrics,
+)
+from ragkit.evaluation.metrics.retrieval import (
+    compute_retrieval_metrics,
+    precision_at_k,
+    recall_at_k,
+    reciprocal_rank,
 )
 
 

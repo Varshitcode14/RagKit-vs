@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Any
 
 from ragkit.core.config import RagKitConfig
-from ragkit.core.interfaces import BaseLLM, BaseEmbedder
+from ragkit.core.interfaces import BaseEmbedder, BaseLLM
 from ragkit.core.types import RagResponse
 from ragkit.pipelines import create_pipeline
 
@@ -51,7 +51,7 @@ class RagKit:
 
         # ── LLM selection ─────────────────────────────────────────────
         if isinstance(llm, BaseLLM):
-            components["llm"] = llm            # inject instance directly
+            components["llm"] = llm  # inject instance directly
         elif isinstance(llm, str):
             self.config.llm.backend = llm
         if model is not None:
@@ -78,7 +78,7 @@ class RagKit:
         self._pipeline = create_pipeline(pipeline, config=self.config, **components)
 
     # ── lifecycle ─────────────────────────────────────────────────────
-    def build(self, corpus: Any | None = None) -> "RagKit":
+    def build(self, corpus: Any | None = None) -> RagKit:
         """Ingest and index the corpus (uses the one given at construction)."""
         source = corpus if corpus is not None else self.corpus
         if source is None:
@@ -89,16 +89,16 @@ class RagKit:
         self._pipeline.ingest(source)
         return self
 
-    def ingest(self, corpus: Any) -> "RagKit":
+    def ingest(self, corpus: Any) -> RagKit:
         """Load + index a corpus (a directory, file, PDF, or list of docs)."""
         self._pipeline.ingest(corpus)
         return self
 
-    def load_index(self, path: str) -> "RagKit":
+    def load_index(self, path: str) -> RagKit:
         self._pipeline.load_index(path)  # type: ignore[attr-defined]
         return self
 
-    def save_index(self, path: str) -> "RagKit":
+    def save_index(self, path: str) -> RagKit:
         self._pipeline.save_index(path)  # type: ignore[attr-defined]
         return self
 

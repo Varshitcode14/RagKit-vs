@@ -7,14 +7,14 @@ Meta backends:
     mock              (offline, deterministic, no keys)
 """
 
-from ragkit.core.interfaces import BaseLLM
 from ragkit.core.config import LLMConfig
+from ragkit.core.interfaces import BaseLLM
 from ragkit.core.registry import LLM_REGISTRY
+from ragkit.llms.mock import MockLLM
 
 # Import backends so they register themselves.
 from ragkit.llms.provider_manager import ProviderManager
-from ragkit.llms.mock import MockLLM
-from ragkit.llms.providers import GroqLLM, OpenAILLM, AnthropicLLM, GoogleLLM
+from ragkit.llms.providers import AnthropicLLM, GoogleLLM, GroqLLM, OpenAILLM
 
 
 def create_llm(config: LLMConfig | None = None) -> BaseLLM:

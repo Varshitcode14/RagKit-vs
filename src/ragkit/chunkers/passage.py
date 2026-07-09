@@ -7,10 +7,10 @@ word-windows when ``chunk_size > 0``.
 
 from __future__ import annotations
 
-from ragkit.core.interfaces import BaseChunker
 from ragkit.core.config import ChunkingConfig
-from ragkit.core.types import Document
+from ragkit.core.interfaces import BaseChunker
 from ragkit.core.registry import CHUNKER_REGISTRY
+from ragkit.core.types import Document
 
 
 @CHUNKER_REGISTRY.register("passage")
@@ -31,7 +31,7 @@ class PassageChunker(BaseChunker):
         step = size - overlap
         windows: list[str] = []
         for start in range(0, len(words), step):
-            window = words[start:start + size]
+            window = words[start : start + size]
             if not window:
                 break
             windows.append(" ".join(window))
@@ -47,9 +47,7 @@ class PassageChunker(BaseChunker):
             # title so retrieved sources are distinguishable.
             meta["doc_title"] = document.title
             title = f"{document.title} [part {i + 1}]" if multiple else document.title
-            chunks.append(
-                Document(title=title, text=text, source=document.source, metadata=meta)
-            )
+            chunks.append(Document(title=title, text=text, source=document.source, metadata=meta))
         return chunks
 
 

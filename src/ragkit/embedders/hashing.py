@@ -13,8 +13,8 @@ import re
 
 import numpy as np
 
-from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.config import EmbeddingConfig
+from ragkit.core.interfaces import BaseEmbedder
 from ragkit.core.registry import EMBEDDER_REGISTRY
 
 _TOKEN = re.compile(r"[a-z0-9]+")

@@ -19,7 +19,9 @@ def recall_at_k(retrieved: list[str], relevant: list[str], k: int | None = None)
     return sum(1 for t in top_k if t in rel) / len(rel)
 
 
-def hit_rate(retrieved_list: list[list[str]], relevant_list: list[list[str]], k: int | None = None) -> float:
+def hit_rate(
+    retrieved_list: list[list[str]], relevant_list: list[list[str]], k: int | None = None
+) -> float:
     if not retrieved_list:
         return 0.0
     hits = 0
@@ -41,9 +43,7 @@ def reciprocal_rank(retrieved: list[str], relevant: list[str]) -> float:
 def mean_reciprocal_rank(retrieved_list: list[list[str]], relevant_list: list[list[str]]) -> float:
     if not retrieved_list:
         return 0.0
-    total = sum(
-        reciprocal_rank(r, rel) for r, rel in zip(retrieved_list, relevant_list)
-    )
+    total = sum(reciprocal_rank(r, rel) for r, rel in zip(retrieved_list, relevant_list))
     return total / len(retrieved_list)
 
 

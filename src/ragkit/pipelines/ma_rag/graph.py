@@ -9,12 +9,12 @@ components instead of relying on import-time module singletons.
 from __future__ import annotations
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 from ragkit.core.interfaces import BaseLLM, BaseRetriever
-from ragkit.prompts.builder import PromptBuilder
 from ragkit.pipelines.ma_rag import agents as A
 from ragkit.pipelines.ma_rag.state import GraphState
+from ragkit.prompts.builder import PromptBuilder
 
 
 def _get_current_goal(state: dict):
@@ -25,11 +25,13 @@ def _get_current_goal(state: dict):
 
 def _add_step_answer(state: dict, answer: str) -> dict:
     state["step_answers"].append(answer)
-    state["history"].append({
-        "step": state["current_step"] + 1,
-        "goal": state["current_goal"],
-        "answer": answer,
-    })
+    state["history"].append(
+        {
+            "step": state["current_step"] + 1,
+            "goal": state["current_goal"],
+            "answer": answer,
+        }
+    )
     return state
 
 
@@ -51,7 +53,12 @@ def build_graph(
     max_steps: int = 3,
 ) -> Callable:
     """Compile and return the MA-RAG graph."""
-    from langgraph.graph import StateGraph, END
+    try:
+        from langgraph.graph import END, StateGraph
+    except ImportError as e:
+        from ragkit.exceptions import MissingDependencyError
+
+        raise MissingDependencyError("langgraph", extra="ma_rag") from e
 
     pb = prompt_builder
 

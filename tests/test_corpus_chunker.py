@@ -2,10 +2,10 @@
 
 import json
 
-from ragkit.corpus.loaders import load_corpus
 from ragkit.chunkers import create_chunker
 from ragkit.core.config import ChunkingConfig
 from ragkit.core.types import Document
+from ragkit.corpus.loaders import load_corpus
 
 
 def test_load_from_memory_list():

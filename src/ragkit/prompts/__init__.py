@@ -1,6 +1,6 @@
 """Prompt templates and builder."""
 
-from ragkit.prompts.builder import PromptBuilder
 from ragkit.prompts import templates
+from ragkit.prompts.builder import PromptBuilder
 
 __all__ = ["PromptBuilder", "templates"]

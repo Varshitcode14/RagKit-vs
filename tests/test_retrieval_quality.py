@@ -7,16 +7,16 @@ download is needed; skipped if faiss is missing.
 
 import pytest
 
-from ragkit.core.config import RetrievalConfig, EmbeddingConfig, StoreConfig, RagKitConfig
+from ragkit.core.config import EmbeddingConfig, RagKitConfig, RetrievalConfig, StoreConfig
 from ragkit.embedders import create_embedder
 from ragkit.prompts.templates import NOT_FOUND_RESPONSE
 
 pytest.importorskip("faiss")
 
-from ragkit.stores.faiss_store import FAISSVectorStore  # noqa: E402
-from ragkit.retrievers.dense import DenseRetriever, _jaccard, _tokens  # noqa: E402
 from ragkit import RagKit  # noqa: E402
 from ragkit.llms.mock import MockLLM  # noqa: E402
+from ragkit.retrievers.dense import DenseRetriever, _jaccard, _tokens  # noqa: E402
+from ragkit.stores.faiss_store import FAISSVectorStore  # noqa: E402
 
 
 def _embedder():
@@ -32,7 +32,7 @@ def _store_with(docs):
 
 def test_config_defaults_are_backward_compatible():
     cfg = RetrievalConfig()
-    assert cfg.min_score is None       # threshold off by default
+    assert cfg.min_score is None  # threshold off by default
     assert cfg.dedupe is True
 
 

@@ -24,7 +24,9 @@ def _offline_config():
 
 
 def test_traditional_pipeline_offline():
-    rag = RagKit(pipeline="traditional", corpus=CORPUS, config=_offline_config(), llm=MockLLM()).build()
+    rag = RagKit(
+        pipeline="traditional", corpus=CORPUS, config=_offline_config(), llm=MockLLM()
+    ).build()
     resp = rag.query("what is faiss?")
     assert resp.answer  # mock returns something
     assert resp.retrieved_titles
@@ -47,5 +49,7 @@ def test_create_pipeline_requires_index():
 
 
 def test_ask_returns_string():
-    rag = RagKit(pipeline="traditional", corpus=CORPUS, config=_offline_config(), llm=MockLLM()).build()
+    rag = RagKit(
+        pipeline="traditional", corpus=CORPUS, config=_offline_config(), llm=MockLLM()
+    ).build()
     assert isinstance(rag.ask("what is faiss?"), str)

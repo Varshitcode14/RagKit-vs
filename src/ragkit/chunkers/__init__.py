@@ -1,9 +1,9 @@
 """Chunker backends."""
 
-from ragkit.core.interfaces import BaseChunker
+from ragkit.chunkers.passage import NoOpChunker, PassageChunker
 from ragkit.core.config import ChunkingConfig
+from ragkit.core.interfaces import BaseChunker
 from ragkit.core.registry import CHUNKER_REGISTRY
-from ragkit.chunkers.passage import PassageChunker, NoOpChunker
 
 
 def create_chunker(config: ChunkingConfig | None = None) -> BaseChunker:

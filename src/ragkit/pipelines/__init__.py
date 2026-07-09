@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from ragkit.core.interfaces import BasePipeline
 from ragkit.core.config import RagKitConfig
+from ragkit.core.interfaces import BasePipeline
 from ragkit.core.registry import PIPELINE_REGISTRY
+from ragkit.pipelines.ma_rag import MARagPipeline
 
 # Import concrete pipelines so they register themselves.
 from ragkit.pipelines.traditional import TraditionalRAGPipeline
-from ragkit.pipelines.ma_rag import MARagPipeline
 
 
 def create_pipeline(

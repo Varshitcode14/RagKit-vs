@@ -5,10 +5,10 @@ from ragkit.evaluation.metrics import (
     compute_retrieval_metrics,
 )
 from ragkit.evaluation.runner import (
-    run_inference,
-    evaluate_predictions,
     compare,
+    evaluate_predictions,
     load_dataset,
+    run_inference,
 )
 
 __all__ = [

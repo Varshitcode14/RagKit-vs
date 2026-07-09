@@ -9,13 +9,13 @@ normalized vectors) or L2 metrics.
 from __future__ import annotations
 
 import pickle
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 
-from ragkit.core.interfaces import BaseVectorStore
 from ragkit.core.config import StoreConfig
+from ragkit.core.interfaces import BaseVectorStore
 from ragkit.core.registry import STORE_REGISTRY
 from ragkit.utils.logger import get_logger
 
@@ -35,14 +35,22 @@ class FAISSVectorStore(BaseVectorStore):
         if dim is not None:
             self._init_index(dim)
 
+    @staticmethod
+    def _import_faiss():
+        try:
+            import faiss
+        except ImportError as e:
+            from ragkit.exceptions import MissingDependencyError
+
+            raise MissingDependencyError("faiss-cpu", extra="faiss") from e
+        return faiss
+
     def _init_index(self, dim: int) -> None:
-        import faiss
+        faiss = self._import_faiss()
         self.dim = dim
         # cosine == inner product on L2-normalized vectors.
         self.index = (
-            faiss.IndexFlatL2(dim)
-            if self.config.metric == "l2"
-            else faiss.IndexFlatIP(dim)
+            faiss.IndexFlatL2(dim) if self.config.metric == "l2" else faiss.IndexFlatIP(dim)
         )
 
     def add(self, vectors: np.ndarray, documents: Sequence[dict]) -> None:
@@ -52,9 +60,7 @@ class FAISSVectorStore(BaseVectorStore):
         if self.index is None:
             self._init_index(vectors.shape[1])
         if vectors.shape[1] != self.dim:
-            raise ValueError(
-                f"Vector dim {vectors.shape[1]} != store dim {self.dim}"
-            )
+            raise ValueError(f"Vector dim {vectors.shape[1]} != store dim {self.dim}")
         self.index.add(vectors)
         self.metadata.extend(dict(d) for d in documents)
 
@@ -76,7 +82,7 @@ class FAISSVectorStore(BaseVectorStore):
         return results
 
     def save(self, path: str) -> None:
-        import faiss
+        faiss = self._import_faiss()
         d = Path(path)
         d.mkdir(parents=True, exist_ok=True)
         faiss.write_index(self.index, str(d / _INDEX_FILE))
@@ -85,7 +91,7 @@ class FAISSVectorStore(BaseVectorStore):
         _log.info("Saved FAISS store (%d vectors) to %s", len(self), d)
 
     def load(self, path: str) -> None:
-        import faiss
+        faiss = self._import_faiss()
         d = Path(path)
         index_file = d / _INDEX_FILE if d.is_dir() else d
         self.index = faiss.read_index(str(index_file))
@@ -96,11 +102,12 @@ class FAISSVectorStore(BaseVectorStore):
         _log.info("Loaded FAISS store (%d vectors) from %s", len(self), d)
 
     @classmethod
-    def from_path(cls, index_path: str, metadata_path: str,
-                  config: StoreConfig | None = None) -> "FAISSVectorStore":
+    def from_path(
+        cls, index_path: str, metadata_path: str, config: StoreConfig | None = None
+    ) -> FAISSVectorStore:
         """Load a legacy index where index + metadata live at explicit paths."""
-        import faiss
         store = cls(config=config)
+        faiss = store._import_faiss()
         store.index = faiss.read_index(str(index_path))
         store.dim = store.index.d
         with open(metadata_path, "rb") as f:

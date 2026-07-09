@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,8 @@ version = "0.1.0"
 description = "A simple, extensible toolkit for building advanced multi-agent Retrieval-Augmented Generation (RAG) pipelines in a few lines of code."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "K Varshit" }]
 maintainers = [{ name = "K Varshit" }]
 keywords = [
@@ -28,7 +29,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -123,6 +123,7 @@ select = ["E", "F", "I", "UP", "B", "W"]
 ignore = [
     "E501",  # line length is handled by the formatter, not enforced hard
     "B008",  # allow function calls in argument defaults (config factories)
+    "B905",  # zip() strict= is a stylistic choice; our zips are equal-length
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -11,9 +11,9 @@ Run:
 from pathlib import Path
 
 from ragkit import RagKit, RagKitConfig
-from ragkit.llms.mock import MockLLM
 from ragkit.embedders import create_embedder
-from ragkit.evaluation import run_inference, evaluate_predictions
+from ragkit.evaluation import evaluate_predictions, run_inference
+from ragkit.llms.mock import MockLLM
 
 HERE = Path(__file__).parent
 DOCS = HERE / "data" / "docs"

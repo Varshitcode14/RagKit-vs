@@ -76,7 +76,7 @@ def compute_generation_metrics(
         "token_recall": sum(token_recall(p, g) for p, g in zip(predictions, gold_answers)) / n,
     }
     if embedder is not None:
-        metrics["semantic_similarity"] = sum(
-            semantic_similarity(p, g, embedder) for p, g in zip(predictions, gold_answers)
-        ) / n
+        metrics["semantic_similarity"] = (
+            sum(semantic_similarity(p, g, embedder) for p, g in zip(predictions, gold_answers)) / n
+        )
     return metrics

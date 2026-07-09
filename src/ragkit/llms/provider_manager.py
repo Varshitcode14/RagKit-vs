@@ -18,9 +18,10 @@ import time
 
 from dotenv import load_dotenv
 
-from ragkit.core.interfaces import BaseLLM
 from ragkit.core.config import LLMConfig
+from ragkit.core.interfaces import BaseLLM
 from ragkit.core.registry import LLM_REGISTRY
+from ragkit.exceptions import LLMError
 from ragkit.utils.logger import get_logger
 
 load_dotenv()
@@ -68,6 +69,7 @@ class ProviderManager(BaseLLM):
     def _get_bedrock_client(self):
         if self._bedrock_client is None:
             import boto3
+
             self._bedrock_client = boto3.client(
                 service_name="bedrock-runtime",
                 region_name=self.aws_region,
@@ -83,6 +85,7 @@ class ProviderManager(BaseLLM):
         for _ in range(len(self.groq_keys)):
             try:
                 from groq import Groq
+
                 client = Groq(api_key=self._next_groq())
                 resp = client.chat.completions.create(
                     model=self.config.groq_model,
@@ -100,6 +103,7 @@ class ProviderManager(BaseLLM):
         for _ in range(len(self.cerebras_keys)):
             try:
                 from cerebras.cloud.sdk import Cerebras
+
                 client = Cerebras(api_key=self._next_cerebras())
                 resp = client.chat.completions.create(
                     model=self.config.cerebras_model,
@@ -133,44 +137,59 @@ class ProviderManager(BaseLLM):
 
     def _invoke_bedrock(self, client, model_id, prompt, temperature) -> str | None:
         if "amazon.nova" in model_id:
-            body = json.dumps({
-                "messages": [{"role": "user", "content": [{"text": prompt}]}],
-                "inferenceConfig": {
-                    "max_new_tokens": 1024,
-                    "temperature": max(temperature, 1e-6),
-                },
-            })
-            resp = client.invoke_model(modelId=model_id, body=body,
-                                       contentType="application/json",
-                                       accept="application/json")
+            body = json.dumps(
+                {
+                    "messages": [{"role": "user", "content": [{"text": prompt}]}],
+                    "inferenceConfig": {
+                        "max_new_tokens": 1024,
+                        "temperature": max(temperature, 1e-6),
+                    },
+                }
+            )
+            resp = client.invoke_model(
+                modelId=model_id,
+                body=body,
+                contentType="application/json",
+                accept="application/json",
+            )
             result = json.loads(resp["body"].read())
             return result["output"]["message"]["content"][0]["text"]
 
         if "meta.llama" in model_id:
-            body = json.dumps({
-                "prompt": (
-                    "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n"
-                    f"{prompt}<|eot_id|>"
-                    "<|start_header_id|>assistant<|end_header_id|>\n"
-                ),
-                "max_gen_len": 1024,
-                "temperature": max(temperature, 1e-6),
-            })
-            resp = client.invoke_model(modelId=model_id, body=body,
-                                       contentType="application/json",
-                                       accept="application/json")
+            body = json.dumps(
+                {
+                    "prompt": (
+                        "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n"
+                        f"{prompt}<|eot_id|>"
+                        "<|start_header_id|>assistant<|end_header_id|>\n"
+                    ),
+                    "max_gen_len": 1024,
+                    "temperature": max(temperature, 1e-6),
+                }
+            )
+            resp = client.invoke_model(
+                modelId=model_id,
+                body=body,
+                contentType="application/json",
+                accept="application/json",
+            )
             result = json.loads(resp["body"].read())
             return result.get("generation", "")
 
         if "mistral" in model_id:
-            body = json.dumps({
-                "prompt": f"<s>[INST]{prompt}[/INST]",
-                "max_tokens": 1024,
-                "temperature": max(temperature, 1e-6),
-            })
-            resp = client.invoke_model(modelId=model_id, body=body,
-                                       contentType="application/json",
-                                       accept="application/json")
+            body = json.dumps(
+                {
+                    "prompt": f"<s>[INST]{prompt}[/INST]",
+                    "max_tokens": 1024,
+                    "temperature": max(temperature, 1e-6),
+                }
+            )
+            resp = client.invoke_model(
+                modelId=model_id,
+                body=body,
+                contentType="application/json",
+                accept="application/json",
+            )
             result = json.loads(resp["body"].read())
             return result["outputs"][0]["text"]
 
@@ -189,7 +208,7 @@ class ProviderManager(BaseLLM):
             if result:
                 return result
 
-        raise RuntimeError(
+        raise LLMError(
             "All LLM providers exhausted (Groq, Cerebras, AWS Bedrock). "
             "Set GROQ_API_KEYS / CEREBRAS_API_KEYS / AWS_* in your environment "
             "or pass a custom llm to the pipeline."
@@ -198,9 +217,7 @@ class ProviderManager(BaseLLM):
     def has_credentials(self) -> bool:
         """True if at least one provider is configured."""
         return bool(
-            self.groq_keys
-            or self.cerebras_keys
-            or (self.aws_access_key and self.aws_secret_key)
+            self.groq_keys or self.cerebras_keys or (self.aws_access_key and self.aws_secret_key)
         )
 
 

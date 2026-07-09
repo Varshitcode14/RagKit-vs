@@ -8,7 +8,8 @@ decorator, and callers build them by name. This is what lets users (and
 
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
@@ -22,11 +23,10 @@ class Registry:
         def deco(obj: T) -> T:
             key = name.lower()
             if key in self._factories:
-                raise ValueError(
-                    f"{self.kind} '{name}' is already registered."
-                )
+                raise ValueError(f"{self.kind} '{name}' is already registered.")
             self._factories[key] = obj  # type: ignore[assignment]
             return obj
+
         return deco
 
     def register_instance(self, name: str, factory: Callable[..., Any]) -> None:
@@ -35,10 +35,7 @@ class Registry:
     def create(self, name: str, *args: Any, **kwargs: Any) -> Any:
         key = name.lower()
         if key not in self._factories:
-            raise KeyError(
-                f"Unknown {self.kind}: '{name}'. "
-                f"Available: {sorted(self._factories)}"
-            )
+            raise KeyError(f"Unknown {self.kind}: '{name}'. Available: {sorted(self._factories)}")
         return self._factories[key](*args, **kwargs)
 
     def available(self) -> list[str]:

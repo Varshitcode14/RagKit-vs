@@ -27,11 +27,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "info":
         from ragkit.pipelines import available_pipelines
+
         print("Available pipelines:", ", ".join(available_pipelines()))
         return 0
 
     if args.command == "query":
         from ragkit import RagKit, RagKitConfig
+
         config = RagKitConfig()
         if args.top_k:
             config.retrieval.top_k = args.top_k

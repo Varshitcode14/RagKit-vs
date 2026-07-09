@@ -14,10 +14,16 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from ragkit.core.interfaces import BaseCorpusLoader
 from ragkit.core.types import Document
+from ragkit.exceptions import (
+    CorpusNotFoundError,
+    EmptyCorpusError,
+    MissingDependencyError,
+    UnsupportedFileTypeError,
+)
 
 _TEXT_EXT = {".txt", ".md", ".markdown", ".rst"}
 _PDF_EXT = {".pdf"}
@@ -52,7 +58,7 @@ class CorpusLoader(BaseCorpusLoader):
 
         path = Path(source)
         if not path.exists():
-            raise FileNotFoundError(f"Corpus source not found: {source}")
+            raise CorpusNotFoundError(f"Corpus source not found: {source}")
 
         if path.is_dir():
             return self._load_dir(path)
@@ -69,7 +75,7 @@ class CorpusLoader(BaseCorpusLoader):
             if suffix in _TEXT_EXT or suffix in _PDF_EXT or suffix in {".json", ".jsonl"}:
                 docs.extend(self._load_file(file))
         if not docs:
-            raise ValueError(
+            raise EmptyCorpusError(
                 f"No supported documents (.txt/.md/.pdf/.json/.jsonl) found under {path}"
             )
         return docs
@@ -84,7 +90,10 @@ class CorpusLoader(BaseCorpusLoader):
             return [self._load_pdf(path)]
         if suffix in _TEXT_EXT:
             return [self._load_text_file(path)]
-        raise ValueError(f"Unsupported corpus source: {path}")
+        raise UnsupportedFileTypeError(
+            f"Unsupported file type '{suffix or path.name}'. Supported: "
+            ".txt, .md, .pdf, .json, .jsonl"
+        )
 
     def _load_text_file(self, file: Path) -> Document:
         text = file.read_text(encoding="utf-8", errors="ignore")
@@ -94,9 +103,7 @@ class CorpusLoader(BaseCorpusLoader):
         try:
             from pypdf import PdfReader
         except ImportError as e:  # pragma: no cover
-            raise ImportError(
-                "PDF support needs pypdf. Install it with: pip install pypdf"
-            ) from e
+            raise MissingDependencyError("pypdf", extra="pdf") from e
         reader = PdfReader(str(file))
         pages = []
         for page in reader.pages:

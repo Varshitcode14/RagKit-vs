@@ -11,8 +11,9 @@ original research code, keeping ported pipeline logic faithful.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
-from typing import Any, Iterable
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -48,7 +49,7 @@ class Document:
         return d
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Document":
+    def from_dict(cls, data: dict[str, Any]) -> Document:
         known = {"title", "text", "source", "metadata", "score"}
         meta = dict(data.get("metadata", {}))
         for k, v in data.items():

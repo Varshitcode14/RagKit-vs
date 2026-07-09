@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import time
 
-from ragkit.core.types import RagResponse
 from ragkit.core.registry import PIPELINE_REGISTRY
+from ragkit.core.types import RagResponse
 from ragkit.pipelines.base import IndexedPipeline
 from ragkit.prompts.templates import NOT_FOUND_RESPONSE
 

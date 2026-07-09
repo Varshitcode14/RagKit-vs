@@ -1,7 +1,7 @@
 """Vector store backends."""
 
-from ragkit.core.interfaces import BaseVectorStore
 from ragkit.core.config import StoreConfig
+from ragkit.core.interfaces import BaseVectorStore
 from ragkit.core.registry import STORE_REGISTRY
 
 
