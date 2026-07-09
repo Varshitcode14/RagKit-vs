@@ -1,0 +1,20 @@
+[
+  {
+    "id": "q1",
+    "question": "What does RAG stand for and what problem does it reduce?",
+    "answer": "Retrieval Augmented Generation; it reduces hallucination by grounding answers in retrieved evidence.",
+    "supporting_titles": ["rag"]
+  },
+  {
+    "id": "q2",
+    "question": "What is the key advantage of Multi-Agent RAG over single-pass RAG?",
+    "answer": "Multi-hop reasoning: chaining facts retrieved at different steps.",
+    "supporting_titles": ["multi_agent_rag"]
+  },
+  {
+    "id": "q3",
+    "question": "Which library is commonly used as the vector store in RAG systems?",
+    "answer": "FAISS",
+    "supporting_titles": ["embeddings"]
+  }
+]

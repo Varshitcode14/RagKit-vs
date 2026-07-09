@@ -1,0 +1,8 @@
+Multi-Agent RAG extends single-pass RAG by decomposing a question into
+several reasoning steps handled by specialized agents. A planner breaks the
+question into minimal sub-goals. For each sub-goal a step definer writes a
+focused retrieval query, a retriever fetches documents, an extractor pulls
+only the relevant evidence, and a QA agent answers that sub-goal. A final
+answer agent synthesizes the per-step answers into one complete response.
+The key advantage over single-pass RAG is multi-hop reasoning: it can chain
+facts retrieved at different steps, which a single retrieval cannot achieve.

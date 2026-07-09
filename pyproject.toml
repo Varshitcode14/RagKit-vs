@@ -1,0 +1,130 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# PyPI distribution name. The import name stays `ragkit` (see [tool.setuptools]).
+name = "ragkit-vs"
+version = "0.1.0"
+description = "A simple, extensible toolkit for building advanced multi-agent Retrieval-Augmented Generation (RAG) pipelines in a few lines of code."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "K Varshit" }]
+maintainers = [{ name = "K Varshit" }]
+keywords = [
+    "rag",
+    "retrieval-augmented-generation",
+    "multi-agent",
+    "llm",
+    "groq",
+    "openai",
+    "embeddings",
+    "faiss",
+    "vector-search",
+    "nlp",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+
+# Core dependencies are intentionally minimal so `pip install ragkit-vs` stays
+# tiny. Every heavy or optional backend lives in an extra below.
+dependencies = [
+    "numpy>=1.24",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# --- building blocks -------------------------------------------------------
+faiss = ["faiss-cpu>=1.7"]
+embeddings = ["sentence-transformers>=2.2"]
+ma_rag = ["langgraph>=0.2"]
+pdf = ["pypdf>=4.0"]
+
+# --- LLM providers (install only the one you use) --------------------------
+groq = ["groq>=0.11"]
+openai = ["openai>=1.0"]
+anthropic = ["anthropic>=0.30"]
+google = ["google-generativeai>=0.7"]
+bedrock = ["boto3>=1.34"]
+cerebras = ["cerebras-cloud-sdk>=1.0"]
+
+# Back-compat meta-extra: the providers the multi-provider fallback used.
+llm = [
+    "groq>=0.11",
+    "cerebras-cloud-sdk>=1.0",
+    "openai>=1.0",
+    "boto3>=1.34",
+]
+
+# --- tooling ---------------------------------------------------------------
+eval = ["matplotlib>=3.6"]
+dev = ["pytest>=7.0", "ruff>=0.6"]
+
+# Convenience: a full local install for development / trying everything.
+all = [
+    "faiss-cpu>=1.7",
+    "sentence-transformers>=2.2",
+    "langgraph>=0.2",
+    "pypdf>=4.0",
+    "groq>=0.11",
+    "openai>=1.0",
+    "anthropic>=0.30",
+    "google-generativeai>=0.7",
+    "boto3>=1.34",
+    "cerebras-cloud-sdk>=1.0",
+    "matplotlib>=3.6",
+    "pytest>=7.0",
+    "ruff>=0.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/Varshitcode14/RagKit-vs"
+Repository = "https://github.com/Varshitcode14/RagKit-vs"
+Documentation = "https://github.com/Varshitcode14/RagKit-vs/tree/main/docs"
+Issues = "https://github.com/Varshitcode14/RagKit-vs/issues"
+Changelog = "https://github.com/Varshitcode14/RagKit-vs/blob/main/CHANGELOG.md"
+
+[project.scripts]
+ragkit = "ragkit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ragkit = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "examples"]
+
+[tool.ruff.lint]
+# A pragmatic, non-noisy rule set for a first release.
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = [
+    "E501",  # line length is handled by the formatter, not enforced hard
+    "B008",  # allow function calls in argument defaults (config factories)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # re-exports are intentional
+"tests/*" = ["E402"]      # importorskip before imports is intentional

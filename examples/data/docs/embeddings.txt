@@ -1,0 +1,7 @@
+Embeddings are dense vector representations of text that place
+semantically similar pieces of text close together in vector space.
+Sentence embedding models such as BAAI/bge-small-en-v1.5 map a sentence to
+a fixed-size vector. In retrieval, both documents and queries are embedded,
+and similarity (often cosine similarity) is used to rank documents. FAISS
+is a library for efficient similarity search over large collections of
+vectors, and is commonly used as the vector store in RAG systems.
